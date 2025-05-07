@@ -47,11 +47,43 @@ The project consists of four main components:
 
 ## Setup and Installation
 
-### Prerequisites
-
-- Node.js
+### Development enviroment
+- Ubuntu 24
+- Node.js (v22)
 - pnpm
 - ffmpeg (for HLS conversion)
+
+
+### Installing Node.js with NVM
+
+We recommend installing Node.js using NVM (Node Version Manager):
+
+1. Download and install NVM:
+   ```bash
+   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+   ```
+   or
+   ```bash
+   wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+   ```
+
+2. Verify NVM installation:
+   ```bash
+   nvm --version
+   ```
+
+3. Install Node.js v22:
+   ```bash
+   nvm install 22
+   nvm use 22
+   ```
+
+4. Set Node.js v22 as your default version:
+   ```bash
+   nvm alias default 22
+   ```
+
+For more information, visit the [NVM GitHub page](https://github.com/nvm-sh/nvm).
 
 ### Installation Steps
 
