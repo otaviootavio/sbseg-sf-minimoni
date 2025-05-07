@@ -1,5 +1,6 @@
-import { ChannelStatus, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import {
+  channelStatusSchema,
   transformChannelResponse,
   type CreateChannelInput,
   type UpdateChannelInput,
@@ -222,14 +223,14 @@ export class ChannelService {
       throw new Error("Unauthorized: Vendor does not own this channel");
     }
 
-    if (channel.status === ChannelStatus.CLOSED) {
+    if (channel.status === "CLOSED") {
       throw new Error("Channel is already closed");
     }
 
     const closedChannel = await this.prisma.channel.update({
       where: { id: channelId },
       data: {
-        status: ChannelStatus.CLOSED,
+        status: channelStatusSchema.parse("CLOSED"),
         closedAt: new Date(),
         settlementTx: settlementTx || undefined,
       },

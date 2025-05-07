@@ -15,7 +15,6 @@ The project consists of four main components:
 
 ```
 .
-├── docker-compose.yml
 ├── debug-web-extension/
 │   ├── src/
 │   │   ├── components/
@@ -42,7 +41,6 @@ The project consists of four main components:
 │   ├── data/
 │   │   ├── playlist.m3u8
 │   │   └── segment*.ts (HLS video segments)
-│   ├── docker-compose.yml
 │   └── package.json
 └── README.MD
 ```
@@ -53,7 +51,6 @@ The project consists of four main components:
 
 - Node.js
 - pnpm
-- Docker and Docker Compose
 - ffmpeg (for HLS conversion)
 
 ### Installation Steps
@@ -114,7 +111,6 @@ The project consists of four main components:
 
 - Copy the contents of `.env.example` into a new `.env` file
 - Contains the admin master key (currently not in use) and the database URL
-- For local development, the database credentials are defined in the `docker-compose.yml` file
 
 ### MetaMask Setup
 
@@ -129,13 +125,7 @@ This system is integrated with the MetaMask wallet:
 
 1. Navigate to the `vendor-api` directory
 
-2. Start the database using Docker Compose:
-
-   ```bash
-   docker-compose up -d
-   ```
-
-3. Generate the database tables:
+2. Generate the database tables:
 
    ```bash
    npx prisma generate
@@ -158,10 +148,7 @@ In the `vite-web-extension`, there are two build prompts:
 
 To run the complete system, you need to ensure all components are properly configured and running:
 
-1. Database (PostgreSQL):
-
-   - Make sure the database is running via Docker Compose
-   - Default port: 5432
+1. Database (sqlite):
 
 2. Vendor API:
 
