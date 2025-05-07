@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Vendor {
+  id            String    @id @default(uuid())
+  chainId       Int
+  address       String    @unique
+  amountPerHash Float
+  channels      Channel[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Payment       Payment[]
+}
+
+model Channel {
+  id              String        @id @default(uuid())
+  contractAddress String        @unique
+  numHashes       Int
+  lastIndex       Int
+  tail            String
+  totalAmount     String
+  vendor          Vendor        @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId        String
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  Payment         Payment[]
+  recipient       String
+  sender          String
+  status          ChannelStatus @default(OPEN)
+  closedAt        DateTime?
+  settlementTx    String?       @unique
+}
+
+model Payment {
+  id        String   @id @default(uuid())
+  xHash     String   @unique
+  amount    Float
+  index     Int
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  channelId String
+  vendor    Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  vendorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ChannelStatus {
+  OPEN
+  CLOSED
+}

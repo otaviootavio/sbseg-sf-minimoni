@@ -1,0 +1,26 @@
+{
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/index.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.8",
+    "@hono/swagger-ui": "^0.5.0",
+    "@hono/zod-openapi": "^0.18.4",
+    "@prisma/client": "^6.3.1",
+    "dotenv": "^16.5.0",
+    "hono": "^4.6.20",
+    "viem": "^2.22.21",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@flydotio/dockerfile": "^0.7.8",
+    "@types/node": "^22.13.1",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.3.1",
+    "ts-node": "^10.9.2",
+    "tsnodemon": "^1.2.2",
+    "typescript": "^5.7.3"
+  }
+}

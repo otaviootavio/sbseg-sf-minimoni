@@ -1,0 +1,42 @@
+{
+  "manifest_version": 3,
+  "name": "MiniMoni - BETA",
+  "description": "A extensino that manages Payword based payment channel. ESTA EXTENSÃO É PARA TESTE BETA",
+  "action": {
+    "default_popup": "src/pages/popup/index.html",
+    "default_icon": {
+      "32": "favicon-32x32.png"
+    }
+  },
+  "icons": {
+    "128": "favicon-32x32.png",
+    "16": "favicon-16x16.png"
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://debug-mini-moni.pages.dev/*",
+        "http://localhost/*"
+      ],
+      "js": [
+        "src/pages/content/index.tsx"
+      ],
+      "css": [
+        "contentStyle.css"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "contentStyle.css",
+        "favicon-16x16.png",
+        "favicon-32x32.png"
+      ],
+      "matches": []
+    }
+  ]
+}

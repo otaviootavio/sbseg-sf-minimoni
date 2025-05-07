@@ -1,0 +1,21 @@
+{
+  "action": {
+    "default_icon": "public/favicon-16x16.png",
+    "default_popup": "src/pages/popup/index.html"
+  },
+  "icons": {
+    "128": "public/favicon-32x32.png",
+    "32": "public/favicon-32x32.png",
+    "16": "public/favicon-16x16.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "contentStyle.css",
+        "favicon-16x16.png",
+        "favicon-32x32.png"
+      ],
+      "matches": []
+    }
+  ]
+}
