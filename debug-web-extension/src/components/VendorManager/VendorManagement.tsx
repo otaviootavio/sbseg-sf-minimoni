@@ -47,7 +47,7 @@ export const VendorManagement = () => {
               {isCreating ? "Create Vendor Profile" : "Edit Vendor Profile"}
             </h2>
           </div>
-          <VendorManager vendorId={selectedVendorId} />
+          <VendorManager vendorId={selectedVendorId} onBack={handleBack} />
         </>
       )}
     </div>

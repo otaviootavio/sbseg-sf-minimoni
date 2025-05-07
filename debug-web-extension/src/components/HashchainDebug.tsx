@@ -45,26 +45,8 @@ export const HashchainDebug = () => {
               <p className="text-xs font-light">
                 MiniMoni is a PayWord implementation that allows you to stream
                 payments in real-time.
-              </p>
-              <h1 className="text-xl font-bold text-gray-900">
-                We are running our beta on XRPL EVM Sidechain Dev Net!
-              </h1>
-              <p className="text-xl font-ligh">
-                <a
-                  className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                  href="http://bridge.xrplevm.org/"
-                >
-                  Get some test tokens!
-                </a>
-              </p>
-              <p className="text-xl font-ligh">
-                <a
-                  className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-                  href="http://explorer.devnet.xrplevm.org/"
-                >
-                  See the explorer!
-                </a>
-              </p>
+              </p>         
+              
             </div>
             <div className="flex flex-row items-center gap-2">
               <ConnectButton />

@@ -9,7 +9,7 @@ import {
 } from "viem";
 import { EthWord$Type } from "./blockchain/EthWord";
 import EthWordJson from "./blockchain/EthWord.json";
-import { xrpEVMSidechain } from "../chains/xrpl-evm-sidechain";
+import { hardhat } from "viem/chains";
 
 const EthWordTyped = EthWordJson as EthWord$Type;
 const abi = EthWordTyped.abi;
@@ -24,7 +24,7 @@ interface ContractData {
 
 export class BlockchainService {
   private publicClient: PublicClient;
-  private chain = xrpEVMSidechain;
+  private chain = hardhat;
 
   constructor() {
     this.publicClient = createPublicClient({

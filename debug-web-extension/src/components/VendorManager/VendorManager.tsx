@@ -24,20 +24,22 @@ const toHexAddress = (address: string): `0x${string}` => {
 
 // Create a form schema based on VendorCreateRequestSchema
 const formSchema = z.object({
-  address: z
-    .string()
-    .trim()
-    .describe("Ethereum address of the vendor"),
+  address: z.string().trim().describe("Ethereum address of the vendor"),
   amountPerHash: z.coerce.number().min(0).describe("Amount per hash in ETH"),
+  chainId: z.number().describe("Chain ID of the network"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 interface VendorManagerProps {
   vendorId?: string;
+  onBack?: () => void;
 }
 
-export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
+export const VendorManager: React.FC<VendorManagerProps> = ({
+  vendorId,
+  onBack,
+}) => {
   const [isLoading, setIsLoading] = useState(false);
   const [currentVendor, setCurrentVendor] = useState<any>(null);
   const { address } = useAccount();
@@ -49,6 +51,7 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
     defaultValues: {
       address: "",
       amountPerHash: 0.0001,
+      chainId: chainId,
     },
   });
 
@@ -64,6 +67,7 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
             form.reset({
               address: response.data.address,
               amountPerHash: response.data.amountPerHash,
+              chainId: chainId,
             });
           } else {
             toast.error("Failed to fetch vendor: " + response.message);
@@ -86,23 +90,29 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
   const onSubmit = async (values: FormValues) => {
     try {
       setIsLoading(true);
-      
+
       // Format the address correctly for the API and add the chain ID
       const formattedValues = {
         ...values,
         address: toHexAddress(values.address),
-        chainId: chainId
+        chainId: chainId,
       };
-      
+
       if (isEditing && vendorId) {
         // Update existing vendor
-        const response = await vendorApi.updateVendor(vendorId, formattedValues);
+        const response = await vendorApi.updateVendor(
+          vendorId,
+          formattedValues
+        );
         if (response.success) {
           toast.success("Vendor updated successfully");
           setCurrentVendor(response.data);
+          onBack?.();
         } else {
           console.error("Update vendor error:", response);
-          toast.error(`Failed to update vendor: ${response.message || "Unknown error"}`);
+          toast.error(
+            `Failed to update vendor: ${response.message || "Unknown error"}`
+          );
         }
       } else {
         // Create new vendor
@@ -110,9 +120,12 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
         if (response.success) {
           toast.success("Vendor created successfully");
           setCurrentVendor(response.data);
+          onBack?.();
         } else {
           console.error("Create vendor error:", response);
-          toast.error(`Failed to create vendor: ${response.message || "Unknown error"}`);
+          toast.error(
+            `Failed to create vendor: ${response.message || "Unknown error"}`
+          );
         }
       }
     } catch (error) {
@@ -121,7 +134,9 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
       if (error instanceof Error) {
         errorMessage = error.message;
       }
-      toast.error(`Error ${isEditing ? "updating" : "creating"} vendor: ${errorMessage}`);
+      toast.error(
+        `Error ${isEditing ? "updating" : "creating"} vendor: ${errorMessage}`
+      );
     } finally {
       setIsLoading(false);
     }
@@ -130,15 +145,28 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{isEditing ? "Edit Vendor Profile" : "Create Vendor Profile"}</CardTitle>
+        <CardTitle>
+          {isEditing ? "Edit Vendor Profile" : "Create Vendor Profile"}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <div className="mb-4">
-              <p className="text-sm font-medium mb-1">Connected Network</p>
-              <p className="text-sm bg-gray-100 p-2 rounded">Chain ID: {chainId}</p>
-            </div>
+            <FormField
+              control={form.control}
+              name="chainId"
+              render={() => (
+                <FormItem>
+                  <FormLabel>Connected Network</FormLabel>
+                  <FormControl>
+                    <>
+                      <Input value={chainId} disabled className="bg-gray-100" />
+                    </>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -151,6 +179,7 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
                       placeholder="0x..."
                       {...field}
                       disabled={!!address}
+                      className="bg-gray-100"
                     />
                   </FormControl>
                   <FormMessage />
@@ -177,11 +206,7 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
               )}
             />
 
-            <Button
-              type="submit"
-              disabled={isLoading}
-              className="w-full"
-            >
+            <Button type="submit" disabled={isLoading} className="w-full">
               {isLoading
                 ? isEditing
                   ? "Updating..."
@@ -197,16 +222,33 @@ export const VendorManager: React.FC<VendorManagerProps> = ({ vendorId }) => {
           <div className="mt-6 p-4 border rounded-md">
             <h3 className="text-lg font-medium">Current Vendor Details</h3>
             <div className="mt-2 space-y-2 text-sm">
-              <p><span className="font-semibold">ID:</span> {currentVendor.id}</p>
-              <p><span className="font-semibold">Chain ID:</span> {currentVendor.chainId}</p>
-              <p><span className="font-semibold">Address:</span> {currentVendor.address}</p>
-              <p><span className="font-semibold">Amount per Hash:</span> {currentVendor.amountPerHash} ETH</p>
-              <p><span className="font-semibold">Created:</span> {new Date(currentVendor.createdAt).toLocaleString()}</p>
-              <p><span className="font-semibold">Updated:</span> {new Date(currentVendor.updatedAt).toLocaleString()}</p>
+              <p>
+                <span className="font-semibold">ID:</span> {currentVendor.id}
+              </p>
+              <p>
+                <span className="font-semibold">Chain ID:</span>{" "}
+                {currentVendor.chainId}
+              </p>
+              <p>
+                <span className="font-semibold">Address:</span>{" "}
+                {currentVendor.address}
+              </p>
+              <p>
+                <span className="font-semibold">Amount per Hash:</span>{" "}
+                {currentVendor.amountPerHash} ETH
+              </p>
+              <p>
+                <span className="font-semibold">Created:</span>{" "}
+                {new Date(currentVendor.createdAt).toLocaleString()}
+              </p>
+              <p>
+                <span className="font-semibold">Updated:</span>{" "}
+                {new Date(currentVendor.updatedAt).toLocaleString()}
+              </p>
             </div>
           </div>
         )}
       </CardContent>
     </Card>
   );
-}; 
+};
