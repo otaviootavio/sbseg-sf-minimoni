@@ -58,7 +58,7 @@ The project consists of four main components:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/otaviootavio/custom-hls
+   git clone https://github.com/otaviootavio/sbseg-sf-minimoni
    cd custom-hls
    ```
 
