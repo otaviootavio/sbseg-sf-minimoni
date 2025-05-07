@@ -48,42 +48,72 @@ The project consists of four main components:
 ## Setup and Installation
 
 ### Development enviroment
+
 - Ubuntu 24
 - Node.js (v22)
 - pnpm
 - ffmpeg (for HLS conversion)
-
 
 ### Installing Node.js with NVM
 
 We recommend installing Node.js using NVM (Node Version Manager):
 
 1. Download and install NVM:
+
    ```bash
    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
    ```
+
    or
+
    ```bash
    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
    ```
 
-2. Verify NVM installation:
+2. Open and close the terminal to start using nvm
+
+3. Verify NVM installation:
+
    ```bash
    nvm --version
    ```
 
-3. Install Node.js v22:
+4. Install Node.js v22:
+
    ```bash
    nvm install 22
    nvm use 22
    ```
 
-4. Set Node.js v22 as your default version:
-   ```bash
-   nvm alias default 22
-   ```
-
 For more information, visit the [NVM GitHub page](https://github.com/nvm-sh/nvm).
+
+### Installing Additional Tools
+
+#### pnpm
+
+Install pnpm globally using npm:
+
+```bash
+npm i -g pnpm
+```
+
+> Note: You may see a warning about a new major version of npm being available. This can be safely ignored.
+
+#### ffmpeg
+
+Install ffmpeg using apt:
+
+```bash
+sudo apt install ffmpeg
+```
+
+#### git
+
+Install git using apt:
+
+```bash
+sudo apt install git
+```
 
 ### Installation Steps
 
@@ -104,7 +134,6 @@ For more information, visit the [NVM GitHub page](https://github.com/nvm-sh/nvm)
    # For hardhat
    cd ../hardhat
    pnpm install
-   npx hardhat compile
 
    # For vendor-api
    cd ../vendor-api
@@ -115,7 +144,14 @@ For more information, visit the [NVM GitHub page](https://github.com/nvm-sh/nvm)
    pnpm install
    ```
 
-3. Initialize video for streaming:
+3. Compile the smart contracts:
+
+   ```bash
+   cd ../hardhat
+   npx hardhat compile
+   ```
+
+4. Initialize video for streaming:
 
    ```bash
    cd ../vendor-api
@@ -124,7 +160,7 @@ For more information, visit the [NVM GitHub page](https://github.com/nvm-sh/nvm)
 
    This script downloads a sample video and converts it to HLS format.
 
-4. Build the browser extension:
+5. Build the browser extension:
    ```bash
    cd ../vite-web-extension
    pnpm build
@@ -137,7 +173,7 @@ For more information, visit the [NVM GitHub page](https://github.com/nvm-sh/nvm)
 **For debug-web-extension:**
 
 - Copy the contents of `.env.example` into a new `.env` file
-- This contains the API URL - for local development, set it to your local API URL
+- This contains the API URL used for local development
 
 **For vendor-api:**
 
@@ -154,7 +190,6 @@ This system is integrated with the MetaMask wallet:
 
 ### Vendor API Setup
 
-
 1. Navigate to the `vendor-api` directory
 
 2. Generate the database tables:
@@ -165,6 +200,7 @@ This system is integrated with the MetaMask wallet:
    ```
 
 ### Browser Extension Setup (Chrome)
+
 In the `vite-web-extension`, there are two build prompts:
 
 ```bash
@@ -180,9 +216,8 @@ In the `vite-web-extension`, there are two build prompts:
 
 To run the complete system, you need to ensure all components are properly configured and running:
 
-1. Database (sqlite):
 
-2. Vendor API:
+1. Vendor API:
 
    - Ensure proper `.env` configuration is in place
    - Run in a dedicated terminal:
@@ -193,7 +228,7 @@ To run the complete system, you need to ensure all components are properly confi
    - Access the API at: http://localhost:3000
    - Access Swagger documentation at: http://localhost:3000/swagger
 
-3. Frontend (debug-web-extension):
+2. Frontend (debug-web-extension):
 
    - Ensure proper `.env` configuration is in place pointing to the vendor API
    - Run in a separate terminal:
@@ -203,8 +238,7 @@ To run the complete system, you need to ensure all components are properly confi
      ```
    - Access the frontend at: http://localhost:5173
 
-4. Browser Extension:
+3. Browser Extension:
    - Should be loaded in Chrome as described in the Browser Extension Setup section
-   - Make sure it's enabled and active when accessing the frontend
 
 Each component must be running simultaneously in separate terminals for the system to function properly.
