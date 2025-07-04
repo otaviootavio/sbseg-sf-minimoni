@@ -24,6 +24,18 @@ If you tend to have tons of tabs open, or are a OneTab user, make sure to check 
 - [Credit](#credit)
 - [Contributing](#contributing)
 
+# Vite Web Extension
+
+## Build
+
+To build the extension, run the following command:
+
+```bash
+docker build --output type=local,dest=. .
+```
+
+This will build the extension using Docker and output the built files to the `./out` directory.
+
 
 ## Intro <a name="intro"></a>
 This boilerplate is meant to be a minimal quick start for creating chrome/firefox extensions using React, Typescript and Tailwind CSS.
