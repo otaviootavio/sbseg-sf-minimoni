@@ -1,5 +1,44 @@
 # Eth-PayWord: Decentralized Video Streaming with Micropayments
 
+## Running with Docker
+
+### Prerequisites
+
+- Docker version 28.2.2 or higher
+- Docker Compose version v2.36.2 or higher
+
+### Quick Start
+
+1. **Run the complete development environment:**
+
+   From the root directory, run:
+   ```bash
+   docker compose up
+   ```
+   
+   This will start:
+   - Hardhat - Ethereum development blockchain
+   - Vendor API - HLS video streaming server
+   - Frontend - User interface
+
+   > **📝 Note:** You can see the Hardhat private key in the logs. You can import this private key to MetaMask for testing purposes.
+
+2. **Build the browser extension:**
+
+   Navigate to the vite-web-extension directory and build the extension:
+   ```bash
+   cd vite-web-extension
+   docker build --output type=local,dest=. .
+   ```
+   
+   The output will be generated in the following folders:
+   - `dist_chrome/` - Chrome extension
+   - `dist_firefox/` - Firefox extension
+
+3. **Load the extension in your browser:**
+   - For Chrome: Go to `chrome://extensions/`, enable Developer mode, and click "Load unpacked" to select the `dist_chrome` folder
+   - For Firefox: Go to `about:debugging`, click "This Firefox", and click "Load Temporary Add-on" to select the manifest file in `dist_firefox`
+
 ## Project Overview
 
 Eth-PayWord is a video streaming platform that implements micropayments using the PayWord protocol on the blockchain. This project provides a secure, efficient, and fair method for content creators to monetize their video content while offering viewers a seamless streaming experience.

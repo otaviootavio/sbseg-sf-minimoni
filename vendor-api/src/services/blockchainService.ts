@@ -27,9 +27,10 @@ export class BlockchainService {
   private chain = hardhat;
 
   constructor() {
+    const rpcUrl = process.env.HARDHAT_RPC_URL || "http://hardhat:8545";
     this.publicClient = createPublicClient({
       chain: this.chain,
-      transport: http(),
+      transport: http(rpcUrl),
     });
   }
 

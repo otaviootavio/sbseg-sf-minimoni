@@ -1,0 +1,43 @@
+services:
+  hardhat:
+    build:
+      context: ./hardhat
+      dockerfile: Dockerfile
+    ports:
+      - "8545:8545"
+    # No bind mount so built node_modules remain intact
+    volumes:
+      - hardhat-cache:/root/.cache
+    command: npx hardhat node --hostname 0.0.0.0
+
+  vendor-api:
+    build:
+      context: ./vendor-api
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:./data/dev.db
+      - HARDHAT_RPC_URL=http://hardhat:8545
+      # - ADMIN_API_KEY=your-secure-admin-key-here
+    volumes:
+      - vendor-data:/app/data
+    depends_on:
+      - hardhat
+
+  debug-web-extension:
+    build:
+      context: ./debug-web-extension
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3000
+        VITE_NODE_ENV: development
+        VITE_DEBUG: "true"
+    ports:
+      - "5173:80"
+    depends_on:
+      - vendor-api
+      - hardhat
+volumes:
+  hardhat-cache:
+  vendor-data:

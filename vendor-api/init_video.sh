@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # --- Configuration ---
 # !!! IMPORTANT: Replace this placeholder URL with the actual video URL you want to download !!!

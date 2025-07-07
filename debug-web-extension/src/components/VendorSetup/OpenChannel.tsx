@@ -68,9 +68,9 @@ const HashSlider = ({
     </Label>
     <Slider
       id="numHashes"
-      min={100}
-      max={1000}
-      step={100}
+      min={10}
+      max={100}
+      step={10}
       value={[parseInt(value) || 0]}
       onValueChange={onChange}
       disabled={isDisabled || isLocked}
