@@ -9,3 +9,6 @@ declare module '*.json' {
   const content: string;
   export default content;
 }
+
+// Chrome extension types
+declare const chrome: typeof import('chrome');

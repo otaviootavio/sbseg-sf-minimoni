@@ -28,6 +28,46 @@ export class ExtensionStorage implements StorageInterface {
       this.notifyAuthStatusListeners();
       return null;
     });
+
+    // Register SW fetch intercept handler
+    this.messageBus.registerHandler("SW_FETCH_INTERCEPT", async (payload) => {
+      console.log("[ExtensionStorage] Handling SW fetch intercept:", payload);
+      
+      try {
+        // Get the selected hashchain
+        const selectedHashchain = await this.getSelectedHashchain();
+        
+        if (!selectedHashchain) {
+          throw new Error("No hashchain selected");
+        }
+
+        // Check if contract address exists
+        if (!selectedHashchain.data.contractAddress) {
+          throw new Error("No contract address found in hashchain data");
+        }
+
+        // Get next hash
+        const nextHash = await this.getNextHash(selectedHashchain.hashchainId);
+        
+        if (!nextHash) {
+          throw new Error("No next hash available");
+        }
+
+        // Return response with contract address
+        const response = {
+          hashchainId: selectedHashchain.hashchainId,
+          nextHash,
+          index: selectedHashchain.data.lastIndex + 1,
+          contractAddress: selectedHashchain.data.contractAddress,
+        };
+
+        console.log("[ExtensionStorage] Sending SW response:", response);
+        return response;
+      } catch (error) {
+        console.error("[ExtensionStorage] Error handling SW intercept:", error);
+        throw error;
+      }
+    });
   }
 
   async createHashchain(

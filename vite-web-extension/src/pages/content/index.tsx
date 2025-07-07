@@ -63,6 +63,7 @@ window.addEventListener("message", async (event) => {
       } = await sendToBackground("GET_SELECTED_HASHCHAIN", {});
 
       console.log("[ContentScript] Got selected hashchain:", selectedHashchain);
+      console.log("[ContentScript] Contract address from hashchain:", selectedHashchain?.data?.contractAddress);
 
       if (!selectedHashchain || !selectedHashchain.hashchainId) {
         console.error("[ContentScript] No hashchain selected");
@@ -70,6 +71,17 @@ window.addEventListener("message", async (event) => {
           source: "CONTENT_SCRIPT",
           type: "SW_FETCH_INTERCEPT_RESPONSE",
           payload: { error: "No hashchain selected" },
+        });
+        return;
+      }
+
+      // Check if contract address exists
+      if (!selectedHashchain.data.contractAddress) {
+        console.error("[ContentScript] No contract address found in hashchain data");
+        sendToWebpage({
+          source: "CONTENT_SCRIPT",
+          type: "SW_FETCH_INTERCEPT_RESPONSE",
+          payload: { error: "No contract address found in hashchain data" },
         });
         return;
       }
@@ -86,6 +98,7 @@ window.addEventListener("message", async (event) => {
         hashchainId: selectedHashchain.hashchainId,
         nextHash,
         index: selectedHashchain.data.lastIndex + 1,
+        contractAddress: selectedHashchain.data.contractAddress,
       };
 
       sendToWebpage({
@@ -126,7 +139,7 @@ window.addEventListener("message", async (event) => {
 });
 
 // Handle messages from extension
-chrome.runtime.onMessage.addListener((message) => {
+chrome.runtime.onMessage.addListener((message: { type: string; hashchainId?: string; authStatus?: boolean; [key: string]: any }) => {
   switch (message.type) {
     
     case "HASHCHAIN_SELECTION_CHANGED":

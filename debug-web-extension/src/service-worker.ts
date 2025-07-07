@@ -56,14 +56,23 @@ self.addEventListener("fetch", async (event) => {
             hashchainId: string;
             nextHash: string;
             index: number;
-          }>((resolve) => {
+            contractAddress: string;
+          }>((resolve, reject) => {
             // Define the response handler function
             function responseHandler(event: MessageEvent) {
               console.log("[SW]: Received response from page:", event.data);
-
               const { type, data } = event.data;
               if (type === "PAGE_INTERCEPT_RESPONSE") {
                 self.removeEventListener("message", responseHandler);
+                
+                // Check if the response contains an error
+                if (data.error) {
+                  console.error("[SW]: Error from content script:", data.error);
+                  reject(new Error(data.error));
+                  return;
+                }
+                
+                console.log("[SW]: Contract address:", data.contractAddress);
                 resolve(data);
               }
             }
@@ -85,6 +94,18 @@ self.addEventListener("fetch", async (event) => {
             );
           }
 
+          // Check if contract address is valid
+          if (!response.contractAddress) {
+            console.error("[SW]: No contract address in response");
+            return new Response(
+              JSON.stringify({ error: "No contract address available" }),
+              {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+              }
+            );
+          }
+
           const existingHeaders = Object.fromEntries(
             event.request.headers.entries()
           );
@@ -93,6 +114,7 @@ self.addEventListener("fetch", async (event) => {
               ...existingHeaders,
               "X-Hash": response.nextHash,
               "x-hash-index": response.index.toString(),
+              "x-smart-contract-address": response.contractAddress,
             },
           });
 

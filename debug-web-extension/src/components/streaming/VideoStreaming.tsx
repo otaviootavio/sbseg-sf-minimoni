@@ -17,17 +17,18 @@ const VideoPlayer = () => {
   useEffect(() => {
     const video = videoRef.current;
 
+    if (!selectedHashchain?.data.contractAddress) {
+      setError("No contract address found. Please set up a payment channel first.");
+      setIsLoading(false);
+      return;
+    }
+
     if (Hls.isSupported() && video && !!selectedHashchain?.data.contractAddress) {
-      const smartContractAddress = selectedHashchain?.data.contractAddress.toString();
       const hls = new Hls({
         maxBufferLength: 1,
         maxMaxBufferLength: 1,
         lowLatencyMode: true,
         backBufferLength: 0,
-        xhrSetup: xhr => {
-          xhr.withCredentials = true;
-          xhr.setRequestHeader('x-smart-contract-address', smartContractAddress);
-        }      
       });
 
       hlsRef.current = hls;
@@ -88,16 +89,11 @@ const VideoPlayer = () => {
     // Re-initialize the player
     const video = videoRef.current;
     if (Hls.isSupported() && video && !!selectedHashchain?.data.contractAddress) {
-      const smartContractAddress = selectedHashchain.data.contractAddress.toString();
       const hls = new Hls({
         maxBufferLength: 1,
         maxMaxBufferLength: 1,
         lowLatencyMode: true,
         backBufferLength: 0,
-        xhrSetup: xhr => {
-          xhr.withCredentials = true;
-          xhr.setRequestHeader('x-smart-contract-address', smartContractAddress);
-        }
       });
       hlsRef.current = hls;
       hls.attachMedia(video);
