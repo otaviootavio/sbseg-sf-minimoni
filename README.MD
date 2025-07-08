@@ -6,56 +6,15 @@ Existing micropayment systems struggle to achieve widespread adoption for contin
 
 Este README está organizado nas seguintes seções:
 
-### 1. **[Introdução](#minimoni-combining-hls-with-payword)**
-Descrição geral do projeto MiniMoni, explicando como ele integra HLS com PayWord para solucionar problemas de micropagamentos em streaming de vídeo.
-
-### 2. **[Selos Considerados](#selos-considerados)**
-Lista dos selos de avaliação acadêmica considerados para este projeto: Artefatos Disponíveis, Funcionais, Sustentáveis e Experimentos Reprodutíveis.
-
-### 3. **[Informações Básicas](#informações-básicas)**
-Visão geral do sistema, incluindo:
-- Descrição da implementação
-- Requisitos de hardware mínimos
-- Requisitos de software necessários
-
-### 4. **[Dependências](#dependências)**
-Especificação completa das dependências do projeto:
-- Dependências principais (Docker, Docker Compose)
-- Recursos de terceiros (MetaMask)
-- Processo de obtenção automática via Docker
-
-### 5. **[Preocupações com Segurança](#preocupações-com-segurança)**
-Avaliação de riscos de segurança para revisores e usuários do sistema.
-
-### 6. **[Instalação](#instalação)**
-Guia passo a passo para configurar o ambiente completo:
-- Clonagem do repositório
-- Instalação de dependências
-- Configuração do MetaMask
-- Inicialização dos serviços
-- Construção e carregamento da extensão
-
-### 7. **[Teste Mínimo](#teste-mínimo)**
-Procedimento básico para validar que o sistema está funcionando corretamente:
-- Inicialização de serviços
-- Configuração do blockchain local
-- Teste de conectividade
-- Fluxo completo de usuário e vendedor
-
-### 8. **[Experimentos](#experimentos)**
-Seção detalhada com três reivindicações principais e seus procedimentos de validação:
-- **[Reivindicação #1](#reivindicação-1-integração-do-protocolo-payword-com-hls-para-pagamento-e-entrega-atômicos)**: Integração PayWord com HLS para pagamento atômico
-- **[Reivindicação #2](#reivindicação-2-integração-agnóstica-com-múltiplas-implementações-de-player-de-vídeo)**: Compatibilidade agnóstica com múltiplos players
-- **[Reivindicação #3](#reivindicação-3-preservação-da-experiência-do-usuário)**: Preservação da experiência do usuário
-
-Cada experimento inclui:
-- Objetivo da reivindicação
-- Procedimentos de validação
-- Critérios de sucesso
-- Instruções detalhadas para reprodução
-
-### 9. **[LICENSE](#license)**
-Especificação da licença MIT do projeto, incluindo texto completo e direitos de uso.
+1. **[Introdução](#minimoni-combining-hls-with-payword)** - Visão geral do projeto MiniMoni
+2. **[Selos Considerados](#selos-considerados)** - Selos de avaliação acadêmica
+3. **[Informações Básicas](#informações-básicas)** - Requisitos de hardware e software
+4. **[Dependências](#dependências)** - Docker, Docker Compose e MetaMask
+5. **[Preocupações com Segurança](#preocupações-com-segurança)** - Avaliação de riscos
+6. **[Instalação](#instalação)** - Guia passo a passo completo
+7. **[Teste Mínimo](#teste-mínimo)** - Validação básica do sistema
+8. **[Experimentos](#experimentos)** - Três reivindicações principais com procedimentos de validação
+9. **[LICENSE](#license)** - Licença MIT do projeto
 
 ## Selos Considerados
 
