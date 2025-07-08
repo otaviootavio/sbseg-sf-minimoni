@@ -4,41 +4,58 @@ Existing micropayment systems struggle to achieve widespread adoption for contin
 
 ## Estrutura do README.MD
 
-O repositório está organizado da seguinte forma:
+Este README está organizado nas seguintes seções:
 
-```
-.
-├── README.MD                    # Este arquivo
-├── docker-compose.yml           # Configuração do ambiente Docker
-├── debug-web-extension/         # Frontend React + TypeScript + Vite
-│   ├── src/
-│   │   ├── components/          # Componentes React
-│   │   ├── context/            # Contextos React
-│   │   ├── hooks/              # Hooks customizados
-│   │   ├── blockchain/         # Integração blockchain
-│   │   ├── assets/             # Recursos estáticos
-│   │   └── ...
-│   ├── public/                 # Arquivos públicos
-│   └── package.json            # Dependências do frontend
-├── vite-web-extension/         # Extensão do navegador
-│   ├── src/                    # Código fonte da extensão
-│   ├── public/                 # Recursos da extensão
-│   ├── dist_chrome/            # Build para Chrome
-│   ├── dist_firefox/           # Build para Firefox
-│   └── package.json            # Dependências da extensão
-├── hardhat/                    # Desenvolvimento de contratos inteligentes
-│   ├── contracts/
-│   │   └── EthWord.sol         # Contrato principal
-│   ├── test/                   # Testes dos contratos
-│   └── package.json            # Dependências do Hardhat
-└── vendor-api/                 # API backend
-    ├── src/                    # Código fonte da API
-    ├── prisma/                 # Esquema do banco de dados
-    ├── data/                   # Dados de streaming HLS
-    │   ├── playlist.m3u8       # Playlist de vídeo
-    │   └── segment*.ts         # Segmentos de vídeo HLS
-    └── package.json            # Dependências da API
-```
+### 1. **[Introdução](#minimoni-combining-hls-with-payword)**
+Descrição geral do projeto MiniMoni, explicando como ele integra HLS com PayWord para solucionar problemas de micropagamentos em streaming de vídeo.
+
+### 2. **[Selos Considerados](#selos-considerados)**
+Lista dos selos de avaliação acadêmica considerados para este projeto: Artefatos Disponíveis, Funcionais, Sustentáveis e Experimentos Reprodutíveis.
+
+### 3. **[Informações Básicas](#informações-básicas)**
+Visão geral do sistema, incluindo:
+- Descrição da implementação
+- Requisitos de hardware mínimos
+- Requisitos de software necessários
+
+### 4. **[Dependências](#dependências)**
+Especificação completa das dependências do projeto:
+- Dependências principais (Docker, Docker Compose)
+- Recursos de terceiros (MetaMask)
+- Processo de obtenção automática via Docker
+
+### 5. **[Preocupações com Segurança](#preocupações-com-segurança)**
+Avaliação de riscos de segurança para revisores e usuários do sistema.
+
+### 6. **[Instalação](#instalação)**
+Guia passo a passo para configurar o ambiente completo:
+- Clonagem do repositório
+- Instalação de dependências
+- Configuração do MetaMask
+- Inicialização dos serviços
+- Construção e carregamento da extensão
+
+### 7. **[Teste Mínimo](#teste-mínimo)**
+Procedimento básico para validar que o sistema está funcionando corretamente:
+- Inicialização de serviços
+- Configuração do blockchain local
+- Teste de conectividade
+- Fluxo completo de usuário e vendedor
+
+### 8. **[Experimentos](#experimentos)**
+Seção detalhada com três reivindicações principais e seus procedimentos de validação:
+- **[Reivindicação #1](#reivindicação-1-integração-do-protocolo-payword-com-hls-para-pagamento-e-entrega-atômicos)**: Integração PayWord com HLS para pagamento atômico
+- **[Reivindicação #2](#reivindicação-2-integração-agnóstica-com-múltiplas-implementações-de-player-de-vídeo)**: Compatibilidade agnóstica com múltiplos players
+- **[Reivindicação #3](#reivindicação-3-preservação-da-experiência-do-usuário)**: Preservação da experiência do usuário
+
+Cada experimento inclui:
+- Objetivo da reivindicação
+- Procedimentos de validação
+- Critérios de sucesso
+- Instruções detalhadas para reprodução
+
+### 9. **[LICENSE](#license)**
+Especificação da licença MIT do projeto, incluindo texto completo e direitos de uso.
 
 ## Selos Considerados
 
