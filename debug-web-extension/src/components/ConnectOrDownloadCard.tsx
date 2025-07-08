@@ -1,5 +1,4 @@
 import ConnectMiniMoniWalletWithDropdown from "./ConnectMiniMoniWalletWithDropdown";
-import DownloadLinks from "./DownloadLinks";
 
 export const ConnectOrDownloadCard = () => {
   return (
@@ -14,7 +13,7 @@ export const ConnectOrDownloadCard = () => {
             You can download the MiniMoni wallet to perform payment by second!
           </p>
         </div>
-        <DownloadLinks />
+        {/* <DownloadLinks /> */}
       </div>
     </div>
   );
