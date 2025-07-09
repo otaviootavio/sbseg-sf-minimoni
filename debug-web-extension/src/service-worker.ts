@@ -48,6 +48,10 @@ self.addEventListener("fetch", async (event) => {
           // Try each client until we get a response
           const client = clients[0];
           console.log("[SW]: Sending message to client:", client.id);
+          
+          // Start timing for message response
+          const messageStartTime = performance.now();
+          
           client.postMessage(message);
           console.log("[SW]: Message sent to client:", message);
 
@@ -73,6 +77,12 @@ self.addEventListener("fetch", async (event) => {
                 }
                 
                 console.log("[SW]: Contract address:", data.contractAddress);
+                
+                // Calculate message response time
+                const messageEndTime = performance.now();
+                const messageResponseTime = messageEndTime - messageStartTime;
+                console.log(`[SW]: Message response time: ${messageResponseTime.toFixed(2)}ms`);
+                
                 resolve(data);
               }
             }
@@ -109,6 +119,10 @@ self.addEventListener("fetch", async (event) => {
           const existingHeaders = Object.fromEntries(
             event.request.headers.entries()
           );
+          
+          // Start timing for HLS fetch request
+          const fetchStartTime = performance.now();
+          
           const fetchResponse = await fetch(event.request, {
             headers: {
               ...existingHeaders,
@@ -117,6 +131,15 @@ self.addEventListener("fetch", async (event) => {
               "x-smart-contract-address": response.contractAddress,
             },
           });
+          
+          // Calculate fetch request time
+          const fetchEndTime = performance.now();
+          const fetchRequestTime = fetchEndTime - fetchStartTime;
+          console.log(`[SW]: HLS fetch request time: ${fetchRequestTime.toFixed(2)}ms`);
+          
+          // Calculate total time from message start to fetch completion
+          const totalTime = fetchEndTime - messageStartTime;
+          console.log(`[SW]: Total request processing time: ${totalTime.toFixed(2)}ms`);
 
           // Get content type from response
           const contentType = fetchResponse.headers.get("Content-Type") || "";

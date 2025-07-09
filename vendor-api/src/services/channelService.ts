@@ -40,7 +40,15 @@ export class ChannelService {
     ) {
       throw new Error("Vendor address does not match contract recipient");
     }
-    
+
+    // Check if channel with this contract address already exists
+    const existingChannel = await this.prisma.channel.findUnique({
+      where: { contractAddress: data.contractAddress },
+    });
+
+    if (existingChannel) {
+      throw new Error("A channel with this contract address already exists");
+    }
 
     const channel = await this.prisma.channel.create({
       data: {
