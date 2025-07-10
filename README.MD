@@ -285,23 +285,24 @@ Esta seção descreve como reproduzir os principais experimentos e funcionalidad
 1. **Preparação para coleta**:
    - Abra o console do navegador através de F12
    - Navegue até a aba "Console"
+   - **Dica**: Para filtrar apenas os logs de performance, digite `[SW-BENCHMARK]` na barra de filtro do console
    - Prepare uma planilha ou documento para registrar os dados manualmente
 
 2. **Execução da coleta de dados normais**:
    - Inicie a reprodução do vídeo
    - Durante alguns minutos, pule para diferentes pontos do vídeo usando os controles do player
    - Para cada requisição de segmento, registre os seguintes dados dos logs:
-     - **Message Response Time**: Tempo entre o envio da mensagem e a resposta (procure logs que mostram duração de mensagens)
-     - **HLS Fetch Request Time**: Tempo de execução da requisição HLS (procure logs de requisições interceptadas)
+     - **Message Response Time**: Procure logs `[SW-BENCHMARK]: Message response time: X.XXms`
+     - **HLS Fetch Request Time**: Procure logs `[SW-BENCHMARK]: HLS fetch request time: X.XXms`
+     - **Total Processing Time**: Procure logs `[SW-BENCHMARK]: Total request processing time: X.XXms`
    - Registre pelo menos 10 amostras de cada métrica
 
 3. **Teste de Cold Start (overhead elevado)**:
    - Pause o vídeo por 60 segundos
    - Retome a reprodução
-   - Registre as primeiras 5 requisições após a pausa (a primeira deve mostrar um valore mais alto)
+   - Registre as primeiras 5 requisições após a pausa (a primeira deve mostrar um valor mais alto)
 
 4. **Cálculo das métricas**:
-   - **Total Processing Time**: Soma de Message Response Time + HLS Fetch Request Time
    - Para cada categoria, calcule: Mínimo, Máximo, Média, Desvio Padrão
 
 #### Coleta de Dados do Servidor (Server-Side Performance)

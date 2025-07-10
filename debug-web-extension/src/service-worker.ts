@@ -81,7 +81,7 @@ self.addEventListener("fetch", async (event) => {
                 // Calculate message response time
                 const messageEndTime = performance.now();
                 const messageResponseTime = messageEndTime - messageStartTime;
-                console.log(`[SW]: Message response time: ${messageResponseTime.toFixed(2)}ms`);
+                console.log(`[SW-BENCHMARK]: Message response time: ${messageResponseTime.toFixed(2)}ms`);
                 
                 resolve(data);
               }
@@ -135,11 +135,11 @@ self.addEventListener("fetch", async (event) => {
           // Calculate fetch request time
           const fetchEndTime = performance.now();
           const fetchRequestTime = fetchEndTime - fetchStartTime;
-          console.log(`[SW]: HLS fetch request time: ${fetchRequestTime.toFixed(2)}ms`);
+          console.log(`[SW-BENCHMARK]: HLS fetch request time: ${fetchRequestTime.toFixed(2)}ms`);
           
           // Calculate total time from message start to fetch completion
           const totalTime = fetchEndTime - messageStartTime;
-          console.log(`[SW]: Total request processing time: ${totalTime.toFixed(2)}ms`);
+          console.log(`[SW-BENCHMARK]: Total request processing time: ${totalTime.toFixed(2)}ms`);
 
           // Get content type from response
           const contentType = fetchResponse.headers.get("Content-Type") || "";
