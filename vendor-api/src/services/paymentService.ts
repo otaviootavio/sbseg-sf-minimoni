@@ -70,6 +70,42 @@ export class PaymentService {
     return payment;
   }
 
+  // Optimized payment creation method that skips redundant validations
+  // Use this when you already have validated channel and vendor data
+  async createOptimized(data: z.infer<typeof createPaymentSchema>, channelId: string) {
+    const transactionStart = performance.now();
+    
+    // Create payment and update channel in a transaction
+    const [payment] = await this.prisma.$transaction([
+      this.prisma.payment.create({
+        data: {
+          xHash: data.xHash,
+          amount: data.amount,
+          index: data.index,
+          vendorId: data.vendorId,
+          channelId: channelId,
+        },
+        include: {
+          vendor: true,
+          channel: true,
+        },
+      }),
+      this.prisma.channel.update({
+        where: { id: channelId },
+        data: {
+          lastIndex: data.index,
+        },
+      }),
+    ]);
+
+    const transactionEnd = performance.now();
+    const transactionTime = transactionEnd - transactionStart;
+    
+    console.log(`PaymentService.createOptimized: Database transaction took ${transactionTime.toFixed(2)}ms`);
+
+    return payment;
+  }
+
   async findById(id: string) {
     return this.prisma.payment.findUnique({
       where: { id },
