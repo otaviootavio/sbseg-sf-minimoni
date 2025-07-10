@@ -80,7 +80,7 @@ Não há riscos de segurança para os revisores.
 4. **Inicie o ambiente completo:**
 
    ```bash
-   docker compose up
+   docker compose up --build
    ```
 
 5. **Construa a extensão do navegador:**
@@ -99,7 +99,7 @@ Execute este teste para verificar se o sistema está funcionando corretamente:
 
 1. **Inicie todos os serviços:**
    ```bash
-   docker compose up
+   docker compose up --build
    ```
 2. **Aguarde até ver as mensagens de inicialização:**
 
@@ -310,7 +310,7 @@ Esta seção descreve como reproduzir os principais experimentos e funcionalidad
 **Função**: Coletar métricas de performance do lado servidor para reconstruir a Tabela 2 - Server-Side HLS Access Validation Performance.
 
 1. **Preparação para coleta**:
-   - No terminal onde executou `docker compose up`, monitore os logs do container `vendor-api`
+   - No terminal onde executou `docker compose up --build`, monitore os logs do container `vendor-api`
    - Prepare uma planilha ou documento para registrar os dados manualmente
 
 2. **Execução da coleta de dados**:
