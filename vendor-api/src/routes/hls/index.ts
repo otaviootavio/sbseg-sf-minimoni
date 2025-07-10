@@ -67,10 +67,10 @@ const validateHlsAccess = async (c: Context, next: Next) => {
   if (!payword || !paywordIndex) {
     const endTime = performance.now();
     const duration = endTime - startTime;
-    console.error(`HLS Access Validation Error: Missing required payment headers (x-payword or x-payword-index) - Validation took ${duration.toFixed(2)}ms`);
+    console.error(`HLS Access Validation Error: Missing required payment headers (x-hash or x-hash-index) - Validation took ${duration.toFixed(2)}ms`);
     const errorResponse: HLSErrorResponse = {
       success: false,
-      message: "Missing required payment headers (x-payword or x-payword-index)",
+      message: "Missing required payment headers (x-hash or x-hash-index)",
     };
     return c.json(errorResponse, 401);
   }

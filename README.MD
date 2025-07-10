@@ -261,28 +261,112 @@ Esta seção descreve como reproduzir os principais experimentos e funcionalidad
 - **Ausência de erros específicos de player no console**: Nenhum erro relacionado à implementação particular do player
 - **Continuidade da contagem de tokens**: Sequência numérica dos tokens permanece íntegra ao trocar players
 
-## Reivindicação #3: Preservação da Experiência do Usuário
+## Reivindicação #3: Análise de Performance e Preservação da Experiência do Usuário
 
-**Objetivo da Reivindicação**: Demonstrar que o vídeo não trava durante o streaming com pagamentos PayWord, validando que o sistema opera de forma transparente sem impactar a reprodução.
+**Objetivo da Reivindicação**: Demonstrar que o sistema MiniMoni opera com overhead mínimo durante o streaming HLS, coletando métricas de performance para validar que o processamento de pagamentos PayWord não impacta negativamente a experiência do usuário.
 
-### Procedimento de Teste de Fluidez
+### Procedimento de Coleta de Dados de Performance
 
-**Propósito**: Verificar que o vídeo reproduz continuamente sem travamentos, pausas ou interrupções relacionadas ao processamento de pagamentos.
+**Propósito**: Medir e analisar o overhead de processamento do sistema MiniMoni, coletando dados tanto do lado cliente (navegador) quanto do servidor para reconstruir as tabelas de performance.
 
-#### Execução do Teste
+#### Preparação do Ambiente de Teste
+
+**Função**: Estabelecer condições controladas para medição precisa de performance.
 
 1. Acesse a aplicação em `http://localhost:5173`
 2. Navegue até a aba "Video"
-3. Certifique-se de que a extensão MiniMoni esteja conectada
-4. Inicie a reprodução do vídeo
-5. Observe a reprodução por pelo menos 2 minutos (tenha certeza de realizar o teste com um canal recém-aberto, para que os tokens não se esgotem)
+3. Certifique-se de que a extensão MiniMoni esteja conectada e um canal de pagamento esteja aberto
+4. Verifique que o saldo do canal é suficiente para reprodução contínua (recomendado: canal com pelo menos 100 tokens)
+
+#### Coleta de Dados do Cliente (Service Worker Performance)
+
+**Função**: Coletar métricas de performance do lado cliente para reconstruir a Tabela 1 - Service Worker Performance Metrics.
+
+1. **Preparação para coleta**:
+   - Abra o console do navegador através de F12
+   - Navegue até a aba "Console"
+   - Prepare uma planilha ou documento para registrar os dados manualmente
+
+2. **Execução da coleta de dados normais**:
+   - Inicie a reprodução do vídeo
+   - Durante alguns minutos, pule para diferentes pontos do vídeo usando os controles do player
+   - Para cada requisição de segmento, registre os seguintes dados dos logs:
+     - **Message Response Time**: Tempo entre o envio da mensagem e a resposta (procure logs que mostram duração de mensagens)
+     - **HLS Fetch Request Time**: Tempo de execução da requisição HLS (procure logs de requisições interceptadas)
+   - Registre pelo menos 10 amostras de cada métrica
+
+3. **Teste de Cold Start (overhead elevado)**:
+   - Pause o vídeo por 60 segundos
+   - Retome a reprodução
+   - Registre as primeiras 5 requisições após a pausa (a primeira deve mostrar um valore mais alto)
+
+4. **Cálculo das métricas**:
+   - **Total Processing Time**: Soma de Message Response Time + HLS Fetch Request Time
+   - Para cada categoria, calcule: Mínimo, Máximo, Média, Desvio Padrão
+
+#### Coleta de Dados do Servidor (Server-Side Performance)
+
+**Função**: Coletar métricas de performance do lado servidor para reconstruir a Tabela 2 - Server-Side HLS Access Validation Performance.
+
+1. **Preparação para coleta**:
+   - No terminal onde executou `docker compose up`, monitore os logs do container `vendor-api`
+   - Prepare uma planilha ou documento para registrar os dados manualmente
+
+2. **Execução da coleta de dados**:
+   - Durante a reprodução do vídeo com os pulos de segmento, registre os seguintes dados dos logs do servidor:
+     - **Data validation**: Tempo de validação dos dados da requisição
+     - **Channel query**: Tempo de consulta do canal no banco de dados
+     - **Double-spend check**: Tempo de verificação de gasto duplo
+     - **Latest payment query**: Tempo de consulta do último pagamento
+     - **Hashchain validation**: Tempo de validação do hash
+     - **Payment creation & storage**: Tempo de criação e armazenamento do pagamento
+   - Registre pelo menos 10 amostras de cada métrica
+
+3. **Cálculo das métricas**:
+   - **Total Validation Time**: Soma de todas as operações de validação
+   - Para cada categoria, calcule: Mínimo, Máximo, Média, Desvio Padrão
+
+#### Reconstrução das Tabelas de Performance
+
+**Função**: Organizar os dados coletados para reproduzir as tabelas de performance apresentadas na análise.
+
+1. **Tabela 1 - Service Worker Performance Metrics**:
+   ```
+   +------------------------+----------+----------+----------+----------+
+   | Category               | Min (ms) | Max (ms) | Mean (ms)| Std. Dev.|
+   +------------------------+----------+----------+----------+----------+
+   | Message Response Time  |    X     |    X     |    X     |    X     |
+   | HLS Fetch Request Time |    X     |    X     |    X     |    X     |
+   +------------------------+----------+----------+----------+----------+
+   | Total Processing Time  |    X     |    X     |    X     |    X     |
+   +------------------------+----------+----------+----------+----------+
+   ```
+
+2. **Tabela 2 - Server-Side HLS Access Validation Performance**:
+   ```
+   +---------------------------+----------+----------+----------+----------+
+   | Category                  | Min (ms) | Max (ms) | Mean (ms)| Std. Dev.|
+   +---------------------------+----------+----------+----------+----------+
+   | Data validation           |    X     |    X     |    X     |    X     |
+   | Channel query             |    X     |    X     |    X     |    X     |
+   | Double-spend check        |    X     |    X     |    X     |    X     |
+   | Latest payment query      |    X     |    X     |    X     |    X     |
+   | Hashchain validation      |    X     |    X     |    X     |    X     |
+   | Payment creation & storage|    X     |    X     |    X     |    X     |
+   +---------------------------+----------+----------+----------+----------+
+   | Total Validation Time     |    X     |    X     |    X     |    X     |
+   +---------------------------+----------+----------+----------+----------+
+   ```
 
 #### Critérios de Validação
 
-**Significado**: Confirmação de que o sistema PayWord não interfere na fluidez da reprodução.
+**Significado**: Confirmação de que o sistema MiniMoni opera com overhead aceitável para streaming HLS.
 
-- **Reprodução contínua**: Vídeo não trava, pausa ou congela durante o streaming
-- **Transparência do pagamento**: Usuário não percebe o processamento de tokens PayWord
+- **Overhead total por segmento**: Deve permanecer consistentemente abaixo de 150ms
+- **Transparência na reprodução**: Vídeo não trava, pausa ou congela durante o streaming
+- **Absorção pelo buffer**: Para segmentos HLS típicos de 5-10 segundos, o delay deve ser imperceptível
+- **Identificação de cold start**: Valores mais altos após pausas prolongadas (60+ segundos)
+- **Consistência das métricas**: Dados coletados devem mostrar padrões similares aos valores de referência
 
 ## LICENSE
 
