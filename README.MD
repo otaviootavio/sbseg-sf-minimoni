@@ -140,7 +140,7 @@ Os seguintes vídeos fornecem acesso completo ao código e orientam o processo d
    docker build --output type=local,dest=. .
    ```
 
-   > **Nota:** O comando anterior irá compilar a extensão e criar um diretório chamado `dist_chrome` (e/ou `dist_firefox`) dentro da pasta `vite-web-extension`. É este o diretório que você irá selecionar no passo a seguir.
+   > **Nota:** O comando anterior irá compilar a extensão e criar o diretório `output/` contendo `dist_chrome` (e/ou `dist_firefox`) dentro da pasta `vite-web-extension`. É este diretório dentro de `vite-web-extension/output/` que você irá selecionar no passo a seguir.
 
 6. **Carregue a extensão no navegador:**
    Siga as instruções para o seu navegador de preferência:
@@ -151,7 +151,7 @@ Os seguintes vídeos fornecem acesso completo ao código e orientam o processo d
    1. Abra o Chrome e acesse a URL: `chrome://extensions/`
    2. No canto superior direito, ative o **Modo de desenvolvedor**.
    3. Clique no botão **"Carregar sem compactação"**.
-   4. Na janela que abrir, navegue até a pasta do projeto e selecione o diretório `vite-web-extension/dist_chrome`.
+   4. Na janela que abrir, navegue até a pasta do projeto e selecione o diretório `vite-web-extension/output/dist_chrome`.
    5. A extensão MiniMoni deverá aparecer na sua lista de extensões.
 
    </details>
@@ -161,7 +161,7 @@ Os seguintes vídeos fornecem acesso completo ao código e orientam o processo d
 
    1. Abra o Firefox e acesse a URL: `about:debugging#/runtime/this-firefox`
    2. Clique no botão **"Carregar Pacote Temporário..."**.
-   3. Na janela que abrir, navegue até a pasta `vite-web-extension/dist_firefox/` e selecione o arquivo `manifest.json`.
+   3. Na janela que abrir, navegue até a pasta `vite-web-extension/output/dist_firefox/` e selecione o arquivo `manifest.json`.
    4. A extensão MiniMoni deverá aparecer na lista de "Extensões temporárias".
 
    </details>
