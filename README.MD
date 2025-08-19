@@ -9,12 +9,15 @@ Este README está organizado nas seguintes seções:
 1. **[Introdução](#minimoni-combining-hls-with-payword)** - Visão geral do projeto MiniMoni
 2. **[Selos Considerados](#selos-considerados)** - Selos de avaliação acadêmica
 3. **[Informações Básicas](#informações-básicas)** - Requisitos de hardware e software
-4. **[Dependências](#dependências)** - Docker, Docker Compose e MetaMask
-5. **[Preocupações com Segurança](#preocupações-com-segurança)** - Avaliação de riscos
-6. **[Instalação](#instalação)** - Guia passo a passo completo
-7. **[Teste Mínimo](#teste-mínimo)** - Validação básica do sistema
-8. **[Experimentos](#experimentos)** - Três reivindicações principais com procedimentos de validação
-9. **[LICENSE](#license)** - Licença MIT do projeto
+4. **[Arquitetura e Sistema de Arquivos](#arquitetura-e-sistema-de-arquivos)** - Visão de componentes e mapeamento de diretórios
+5. **[Dependências](#dependências)** - Docker, Docker Compose e MetaMask
+6. **[Preocupações com Segurança](#preocupações-com-segurança)** - Avaliação de riscos
+7. **[Vídeos de Apoio](#vídeos-de-apoio)** - Instalação e demonstração guiadas
+8. **[Instalação](#instalação)** - Guia passo a passo completo
+9. **[Teste Mínimo](#teste-mínimo)** - Validação básica do sistema
+10. **[Experimentos](#experimentos)** - Três reivindicações principais com procedimentos de validação
+11. **[Troubleshooting / Erros Comuns](#troubleshooting--erros-comuns)** - Soluções para problemas comuns
+12. **[LICENSE](#license)** - Licença MIT do projeto
 
 ## Selos Considerados
 
@@ -32,7 +35,13 @@ Este projeto implementa um sistema completo de streaming de vídeo com micropaga
 **Requisitos de Hardware:**
 
 - Memória RAM: Mínimo 4GB, recomendado 8GB
-- Armazenamento: 2GB livres
+- Armazenamento (mínimo, com base nas medições e tamanhos oficiais):
+  - Imagens Docker: ~0.93GB (hardhat ~464MB, vendor-api ~404MB, debug-web-extension ~55.8MB, vite-web-extension ~8.39MB)
+  - Dados/volumes em runtime (cache do Hardhat, banco SQLite, builds locais, logs): ≥0.5GB
+  - Navegador (instalação): Chrome (Linux) ~61MB; Firefox ~500MB
+  - Total mínimo sugerido:
+    - Com Chrome: ~1.5GB livres
+    - Com Firefox: ~2.0GB livres
 - Conexão com internet estável
 
 **Requisitos de Software:**
@@ -40,6 +49,40 @@ Este projeto implementa um sistema completo de streaming de vídeo com micropaga
 - Sistema Operacional: Linux, macOS ou Windows
 - Docker version 28.2.2 ou superior
 - Docker Compose version v2.36.2 ou superior
+- Navegador: Google Chrome ou Mozilla Firefox
+
+## Arquitetura e Sistema de Arquivos
+
+
+![Fluxo de Dados do MiniMoni](assets/data-flow.png)
+
+Em alto nível, quando o player requisita um segmento HLS, o Service Worker (`debug-web-extension/src/service-worker.ts`) intercepta a requisição e envia `SW_FETCH_INTERCEPT` para a página; a página repassa via `MessageBus` (`debug-web-extension/src/lib/MessageBus.ts`) ao Content Script, que por sua vez consulta o Background (`vite-web-extension/src/pages/background/index.ts`) pedindo o próximo token com `GET_SELECTED_HASHCHAIN` e `GET_NEXT_HASH`. O Background lê/atualiza a hashchain no IndexedDB (`vite-web-extension/src/pages/background/indexedDBClient.ts`) e retorna `nextHash`, `index` e `contractAddress`. A página responde ao Service Worker, que injeta os headers `X-Hash`, `x-hash-index` e `x-smart-contract-address` e reenvida a requisição. Do lado do servidor, a Vendor API valida esses headers no middleware de HLS (`vendor-api/src/routes/hls/index.ts`), checando canal, gasto duplo e cadeia de hashes antes de entregar o segmento.
+
+
+Partindo do fluxo de dados ilustrado acima, a arquitetura é composta por uma extensão de navegador e uma API de Vendedor (servidor) que validam pagamentos PayWord a cada segmento HLS.
+
+- Video Player → Service Worker: o Service Worker intercepta requisições HLS e inicia o ciclo de obtenção do token.
+- Page ↔ Content Script ↔ Background: a página repassa o evento via `MessageBus` para o Content Script, que solicita ao Background o próximo token da hashchain.
+- Background ↔ IndexedDB: o Background lê/atualiza a hashchain no IndexedDB e devolve `nextHash`, `index` e `contractAddress`.
+- Service Worker → Vendor API: os headers de pagamento são inseridos e enviados; o servidor valida e só então entrega o segmento.
+
+Aarquivos principais:
+
+1. Interceptação HLS no Service Worker: `debug-web-extension/src/service-worker.ts`
+2. Ponte de mensagens na página: `debug-web-extension/src/lib/MessageBus.ts`
+3. Mediação no Content Script: `vite-web-extension/src/pages/content/index.tsx`
+4. Lógica de hashchain no Background: `vite-web-extension/src/pages/background/index.ts`
+5. Persistência IndexedDB: `vite-web-extension/src/pages/background/indexedDBClient.ts`
+6. Validação e entrega HLS (servidor): `vendor-api/src/routes/hls/index.ts`
+
+Mapa de diretórios de alto nível:
+
+- `vite-web-extension/`: código da extensão (content script, background, manifest, build para Chrome/Firefox).
+- `debug-web-extension/`: utilitários de depuração/ponte com a página, incluindo o `Service Worker` e `MessageBus` usados nos testes locais.
+- `vendor-api/`: API do Vendedor (Hono + Prisma). Rota HLS e validação de pagamentos; diretório `data/` armazena o conteúdo HLS gerado por `init_video.sh`.
+- `hardhat/`: contratos, scripts e rede local Ethereum para desenvolvimento/testes.
+- `assets/`: artefatos de documentação (ex.: `data-flow.png`).
+- `docker-compose.yml`: orquestração dos serviços para desenvolvimento.
 
 ## Dependências
 
@@ -56,6 +99,13 @@ Este projeto implementa um sistema completo de streaming de vídeo com micropaga
 ## Preocupações com segurança
 
 Não há riscos de segurança para os revisores.
+
+## Vídeos de apoio
+
+Os seguintes vídeos fornecem acesso completo ao código e orientam o processo de configuração e uso do sistema:
+
+- **Vídeo de Instalação**: [YouTube - Instalação](https://youtu.be/TDhcyu8ikEI)
+- **Vídeo de Demonstração**: [YouTube - Demonstração](https://youtu.be/bpFZVlYnUa0)
 
 ## Instalação
 
@@ -90,25 +140,48 @@ Não há riscos de segurança para os revisores.
    docker build --output type=local,dest=. .
    ```
 
+   > **Nota:** O comando anterior irá compilar a extensão e criar o diretório `output/` contendo `dist_chrome` (e/ou `dist_firefox`) dentro da pasta `vite-web-extension`. É este diretório dentro de `vite-web-extension/output/` que você irá selecionar no passo a seguir.
+
 6. **Carregue a extensão no navegador:**
-   - **Chrome**: Acesse `chrome://extensions/`, habilite "Modo do desenvolvedor", clique em "Carregar sem compactação" e selecione a pasta `dist_chrome`
+   Siga as instruções para o seu navegador de preferência:
+
+   <details>
+   <summary><strong>Google Chrome</strong></summary>
+
+   1. Abra o Chrome e acesse a URL: `chrome://extensions/`
+   2. No canto superior direito, ative o **Modo de desenvolvedor**.
+   3. Clique no botão **"Carregar sem compactação"**.
+   4. Na janela que abrir, navegue até a pasta do projeto e selecione o diretório `vite-web-extension/output/dist_chrome`.
+   5. A extensão MiniMoni deverá aparecer na sua lista de extensões.
+
+   </details>
+
+   <details>
+   <summary><strong>Mozilla Firefox</strong></summary>
+
+   1. Abra o Firefox e acesse a URL: `about:debugging#/runtime/this-firefox`
+   2. Clique no botão **"Carregar Pacote Temporário..."**.
+   3. Na janela que abrir, navegue até a pasta `vite-web-extension/output/dist_firefox/` e selecione o arquivo `manifest.json`.
+   4. A extensão MiniMoni deverá aparecer na lista de "Extensões temporárias".
+
+   </details>
 
 # Teste mínimo
 
 Execute este teste para verificar se o sistema está funcionando corretamente:
 
 1. **Inicie todos os serviços:**
+   - No terminal, na raiz do projeto, execute:
    ```bash
    docker compose up --build
    ```
-2. **Aguarde até ver as mensagens de inicialização:**
 
+2. **Aguarde até ver as mensagens de inicialização (no terminal do Docker Compose):**
    - Hardhat: "Started HTTP and WebSocket JSON-RPC server at http://localhost:8545/"
    - Vendor API: "Server is running on port 3000"
    - Frontend: "Local: http://localhost:5173"
 
-3. **Configure o MetaMask:**
-
+3. **Configure o MetaMask (no navegador, na extensão MetaMask):**
    - Abra o MetaMask
    - Adicione a rede Hardhat
      - Nome: Hardhat
@@ -128,42 +201,35 @@ Execute este teste para verificar se o sistema está funcionando corretamente:
    >
    > Sugerimos que importe ambas para simular um Vendedor e um Usuário.
 
-4. **Acesse a aplicação:**
-
+4. **Acesse a aplicação (no navegador):**
    - Frontend: http://localhost:5173
    - API: http://localhost:3000
    - Swagger: http://localhost:3000/swagger
 
-5. **Conectando-se ao frontend:**
+5. **Conecte-se ao frontend (na página da aplicação):**
+   - Acesse `http://localhost:5173` e clique no botão **"Connect Wallet"**. O MetaMask exibirá um popup; selecione a conta desejada e clique em **Conectar** (ou **Next/Confirm**), e certifique-se de selecionar a rede **Hardhat** se solicitado.
+   - Ainda na página da aplicação, clique no botão **"Connect MiniMoni Wallet"**. Uma notificação da extensão MiniMoni aparecerá; clique em **"Aceitar"** para permitir a conexão.
 
-   - Acesse o frontend (http://localhost:5173)
-   - Conecte o MetaMask por meio do botão (Connect Wallet)
-   - Conecte a extensão do MiniMoni (clique no botão Connect MiniMoni Wallet e em seguida aceite o popup)
+6. **Cadastrar um Vendedor (na página da aplicação):**
+   - Clique no botão **"Switch to Vendor Mode"**
+   - Clique no botão **"Create Vendor Profile"**
+   - O formulário deve estar parcialmente preenchido; complete-o com a quantidade de Ether por hash (para fins de demonstração, sugerimos **1 ETH**)
+   - Para voltar à página inicial, clique em **"Switch to User Mode"**
 
-6. **Cadastrar um Vendedor:**
+7. **Importar carteira do Usuário (no MetaMask):**
+   - Para simular o cenário de Usuário e Vendedor, altere para outra conta no MetaMask
+   - Utilize a **Conta #1** importada (ver passo 3) selecionando-a no menu de contas do MetaMask
 
-   - Clique no botão "Switch to Vendor Mode"
-   - Clique no botão "Create Vendor Profile"
-   - O formulário deve estar parcialmente preenchido; preencha-o com a quantidade de Ether para cada hash (para fins de demonstração, sugerimos 1 ETH)
-   - Para voltar à página inicial, clique em "Switch to User Mode"
+8. **Abertura de um canal de pagamento (no painel da extensão MiniMoni):**
+   - No seu navegador, clique no ícone da extensão **MiniMoni** para abrir o painel da extensão
+   - Dentro do painel da extensão, clique no botão **"Import"** para carregar os dados do vendedor
+   - Verifique que o painel **"2. Open the channel!"** está visível; selecione o tamanho da hashchain (para testes, sugerimos **100 hashes**)
+   - Clique no botão **"Open Channel"** e confirme a transação no popup do **MetaMask**
 
-7. **Importar carteira do Usuário:**
-
-   - Para simular um cenário de Usuário e Vendedor, é necessário trocar para outro endereço de carteira
-   - Veja o passo (3), onde ocorre a importação de um endereço gerado pelo Hardhat no MetaMask
-
-8. **Abertura de um canal de pagamento:**
-
-   - Importe os dados do Vendedor por meio do botão "Import"
-   - Os dados do vendedor devem estar visíveis na extensão, que pode ser acessada clicando no ícone dela, junto ao painel de extensões
-   - O painel "2. Open the channel!" deve estar visível, ele permite que o usuário selecione o tamanho da hashchain (portanto, quanto tempo de vídeo estará disponível ao usuário)
-   - Sugerimos, para fins de testes, que sejam selecionados 100 hashes
-   - Após isso, pressione o botão "Open Channel" e confirme a transação pelo MetaMask
-
-9. **Envie pagamentos enquanto assiste vídeo:**
-   - Na aba "My Channels" estão visíveis todos os canais, armazenados no backend
-   - Na aba "Video" ocorrerá o streaming dos vídeos. Para realizar o streaming de vídeo, é necessário autorizar o acesso da página à extensão por certo tempo. Para fins de demonstração, sugerimos que dê permissão pelo máximo de tempo possível
-   - Por fim, é possível dar play no vídeo
+9. **Envie pagamentos enquanto assiste vídeo (na página da aplicação):**
+   - Na aba **"My Channels"** do frontend, visualize os canais armazenados no backend
+   - Navegue até a aba **"Video"**. A primeira vez que iniciar, a página solicitará permissão de acesso à extensão; aceite a permissão (sugestão: conceda pelo tempo máximo para demonstração)
+   - Clique em **Play** para iniciar o streaming do vídeo
 
 **Resultado esperado:** O sistema deve carregar completamente, o MetaMask deve conectar com sucesso, e o streaming de vídeo deve estar disponível.
 
@@ -368,6 +434,81 @@ Esta seção descreve como reproduzir os principais experimentos e funcionalidad
 - **Absorção pelo buffer**: Para segmentos HLS típicos de 5-10 segundos, o delay deve ser imperceptível
 - **Identificação de cold start**: Valores mais altos após pausas prolongadas (60+ segundos)
 - **Consistência das métricas**: Dados coletados devem mostrar padrões similares aos valores de referência
+
+## Troubleshooting / Erros Comuns
+
+Encontrou algum problema? Verifique aqui as soluções para os erros mais comuns.
+
+### 1. Erros ao executar docker compose up
+
+- **Erro**: "port is already allocated" ou "address already in use"
+- **Causa**: Outro serviço em sua máquina já está usando as portas 3000, 5173 ou 8545.
+- **Solução**: Pare o serviço que está usando a porta ou, se preferir, altere as portas no arquivo `docker-compose.yml`. Para parar todos os containers do MiniMoni e limpar os volumes, execute:
+```bash
+docker compose down -v
+```
+
+- **Erro**: Falha no build de um dos containers
+- **Causa**: Pode ser um problema de rede ou uma versão incompatível do Docker/Docker Compose.
+- **Solução**: Verifique sua conexão com a internet e confirme se suas versões do Docker atendem aos requisitos mínimos. Tente executar:
+```bash
+docker compose build --no-cache
+```
+
+### 2. Problemas com a extensão no navegador
+
+- **Erro**: O popup da extensão MiniMoni não aparece ou a página não se conecta.
+- **Causa**: Geralmente, isso significa que o content script da extensão não foi carregado corretamente na página do frontend.
+- **Solução (Passo a Passo)**:
+  - **Verifique o Endereço de Acesso**: Certifique-se de que está acessando a aplicação via `http://localhost:5173`. Acessar por `http://0.0.0.0:5173` pode não funcionar, pois os navegadores aplicam políticas de segurança diferentes para este endereço que podem bloquear a injeção de scripts de extensões.
+  - **Atualize a Página e Verifique o Console**: Recarregue a página do frontend e abra o console do desenvolvedor (F12). Verifique se há mensagens confirmando que o content script do MiniMoni foi carregado.
+  - **Confirme a Instalação da Extensão**: Garanta que a extensão foi construída (`docker build ...`) e carregada corretamente no navegador. Lembre-se que o diretório de saída (`dist_chrome` ou `dist_firefox`) é que deve ser carregado como uma extensão descompactada.
+
+- **Erro**: O botão "Connect MiniMoni Wallet" não responde ao clique.
+- **Causa**: Este pode ser um problema de inicialização ou comunicação entre a página e a extensão. Foi um ponto reportado durante a revisão.
+- **Solução**:
+  - Recarregue a página do frontend (`http://localhost:5173`).
+  - Verifique se a extensão MiniMoni está ativada na página de extensões (`chrome://extensions/` ou `about:debugging`).
+  - Abra o console do navegador (F12) e verifique se há mensagens de erro.
+  - Tente remover e recarregar a extensão no modo de desenvolvedor.
+
+### 3. Problemas com o MetaMask
+
+- **Erro**: Falha em transações após reiniciar o ambiente ("Nonce too low" ou similar).
+- **Causa**: A rede de desenvolvimento Hardhat é reiniciada a cada `docker compose up`, zerando seu histórico de transações. No entanto, o MetaMask guarda o "nonce" (contador de transações) da sua conta. Quando você tenta fazer uma nova transação, o MetaMask sugere um nonce antigo, que agora é inválido para a blockchain zerada, causando a falha.
+- **Solução**: É necessário limpar o histórico de atividade da sua conta no MetaMask para que ele se ressincronize com a rede. Siga os passos abaixo:
+  - Abra o MetaMask e clique no ícone da sua conta (canto superior direito).
+  - Vá para Configurações (Settings).
+  - Selecione Avançado (Advanced).
+  - Clique no botão "Limpar dados de atividade e transações" (Clear activity and transaction data).
+  - Após limpar, sua próxima transação funcionará corretamente.
+
+- **Erro**: A aplicação não consegue se conectar à carteira.
+- **Causa**: A rede Hardhat não foi configurada corretamente ou não está selecionada.
+- **Solução**: Abra o MetaMask e verifique se a rede Hardhat (Chain ID 31337) está selecionada no topo. Confirme se a URL de RPC (`http://localhost:8545`) está correta nas configurações da rede.
+
+### 4. Conflito de Canais de Pagamento (ID duplicado) após reiniciar o sistema
+
+- **Erro**: O sistema apresenta comportamento inesperado ou falhas ao tentar abrir um novo canal de pagamento após ter reiniciado o ambiente Docker, especialmente se a mesma conta de carteira for usada.
+- **Causa**: O deploy de contratos inteligentes na rede Hardhat é determinístico. Isso significa que a primeira transação de deploy feita por uma carteira sempre resultará no mesmo endereço de contrato se a blockchain for resetada. Como o banco de dados do backend persiste os dados entre reinicializações (via volume Docker), ao tentar criar um novo canal com a mesma carteira, o endereço do novo contrato será idêntico a um já registrado no banco de dados, causando um conflito de identificador único.
+- **Solução**:
+  - **Para Demonstração (Recomendado)**: Para garantir um ambiente limpo e evitar conflitos, é recomendado derrubar completamente o ambiente anterior, incluindo os volumes de dados, antes de subi-lo novamente. Execute os seguintes comandos no terminal:
+```bash
+# 1. Derruba os containers e remove os volumes persistentes (limpa o banco de dados)
+docker compose down -v
+
+# 2. Sobe e recria os containers com um estado limpo
+docker compose up --build
+```
+  - **Nota para Produção**: Em um ambiente de produção, este problema seria resolvido utilizando o opcode `CREATE2` para a geração de endereços de contratos, que permite a criação de endereços de forma não-determinística.
+
+### 5. MetaMask não consegue se conectar à rede Hardhat
+
+- **Erro**: Ao tentar conectar a aplicação ou o MetaMask à rede Hardhat (`http://localhost:8545`), a conexão falha sem um motivo aparente, mesmo com as configurações corretas.
+- **Causa**: A causa exata é desconhecida, assumindo que o nó Hardhat esteja no ar. Este é um erro intermitente observado durante o desenvolvimento, que parece estar relacionado à comunicação interna entre a extensão MetaMask, o navegador e a rede local. Por ser um problema externo ao nosso código, não temos uma correção direta para ele.
+- **Solução (Workaround)**:
+  - Primeiramente, valide se o nó da blockchain está funcionando. Verifique o terminal onde o `docker compose` está em execução e procure pela mensagem de confirmação do container do Hardhat, que deve ser similar a: `Started HTTP and WebSocket JSON-RPC server at http://0.0.0.0:8545/`.
+  - Se o nó estiver funcionando corretamente, a solução que se mostrou eficaz na maioria das vezes é simplesmente fechar completamente o navegador e abri-lo novamente. Após reiniciar o navegador, a conexão com a rede Hardhat geralmente é estabelecida com sucesso.
 
 ## LICENSE
 
